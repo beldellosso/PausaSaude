@@ -541,6 +541,7 @@ export default function DashboardPage() {
               </>
             )}
           </main>
+          
         </div>
 
         <footer className="w-full bg-white border-t py-4 text-center mt-12 shadow-inner">
