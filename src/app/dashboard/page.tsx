@@ -59,9 +59,14 @@ export default function DashboardPage() {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!session?.user) {
-          setErro("Usuário não autenticado. Redirecionando...");
-          return;
-        }
+      setErro("Usuário não autenticado. Redirecionando...");
+  
+       setTimeout(() => {
+      window.location.href = '/login';
+      }, 1500);
+
+       return;
+     }
 
         const uId = session.user.id;
         setUserId(uId);
