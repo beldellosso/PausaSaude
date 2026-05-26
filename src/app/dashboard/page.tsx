@@ -174,8 +174,9 @@ export default function DashboardPage() {
       setDescricao('');
       setCalorias('');
       setDataHora('');
-    } catch (err) {
-      setErro('Falha operacional ao persistir os dados do alimento.');
+    } catch (err : any) {
+      console.error(err);
+      setErro(err.message || 'Erro ao salvar refeição');
     } finally {
       setEnviando(false);
     }
