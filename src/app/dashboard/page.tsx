@@ -73,8 +73,7 @@ export default function DashboardPage() {
 
         // 1. Carrega as Refeições da API do Supabase/Service
         const dadosRefeicoes = await refeicoesService.listar(); 
-        const refeicoesDoUsuario = (dadosRefeicoes || []).filter((r: any) => r.user_id === uId || !r.user_id);
-        setRefeicoes(refeicoesDoUsuario);
+        setRefeicoes(dadosRefeicoes || []);
 
         // 2. Carrega a Meta Calórica (Mantendo o fallback seguro no localStorage por User ID)
         const metaSalva = localStorage.getItem(`meta_${uId}`);
@@ -128,16 +127,24 @@ export default function DashboardPage() {
       setErro(null);
 
       if (idRefeicaoEditando) {
-        // Se a sua estrutura de refeicoesService possuir o método atualizar, descomente a linha abaixo:
-        // await refeicoesService.atualizar(idRefeicaoEditando, { tipo_refeicao: tipoRefeicao, descricao, calorias: Number(calorias), data_hora: dataHora });
-        
-        setRefeicoes(prev => prev.map(item => item.id === idRefeicaoEditando ? {
-          ...item,
-          tipo_refeicao: tipoRefeicao,
-          descricao,
-          calorias: Number(calorias),
-          data_hora: dataHora
-        } : item));
+
+  const refeicaoAtualizada = await refeicoesService.atualizar(
+    idRefeicaoEditando,
+    {
+      tipo_refeicao: tipoRefeicao,
+      descricao,
+      calorias: Number(calorias),
+      data_hora: dataHora
+    }
+   );
+
+       setRefeicoes(prev =>
+        prev.map(item =>
+        item.id === idRefeicaoEditando
+        ? refeicaoAtualizada
+        : item
+       )
+      );
         setIdRefeicaoEditando(null);
         alert('Registro de refeição atualizado com sucesso!');
       } else {
@@ -192,9 +199,8 @@ export default function DashboardPage() {
   async function handleExcluirRefeicao(id: string) {
     if (window.confirm("Deseja realmente remover permanentemente este registro do seu histórico?")) {
       try {
-        // Se a sua estrutura de refeicoesService possuir o método excluir, descomente a linha abaixo:
-        // await refeicoesService.excluir(id);
-        
+        await refeicoesService.deletar(id);
+
         setRefeicoes(prev => prev.filter(item => item.id !== id));
       } catch (err) {
         setErro("Não foi possível excluir o registro do banco de dados.");
