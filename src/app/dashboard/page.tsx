@@ -57,22 +57,22 @@ export default function DashboardPage() {
       try {
         setCarregando(true);
         const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!session?.user) {
-      setErro("Usuário não autenticado. Redirecionando...");
-  
-       setTimeout(() => {
-      window.location.href = '/login';
-      }, 1500);
 
-       return;
-     }
+        if (!session?.user) {
+          setErro("Usuário não autenticado. Redirecionando...");
+
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 1500);
+
+          return;
+        }
 
         const uId = session.user.id;
         setUserId(uId);
 
         // 1. Carrega as Refeições da API do Supabase/Service
-        const dadosRefeicoes = await refeicoesService.listar(); 
+        const dadosRefeicoes = await refeicoesService.listar();
         setRefeicoes(dadosRefeicoes || []);
 
         // 2. Carrega a Meta Calórica (Mantendo o fallback seguro no localStorage por User ID)
@@ -128,23 +128,23 @@ export default function DashboardPage() {
 
       if (idRefeicaoEditando) {
 
-  const refeicaoAtualizada = await refeicoesService.atualizar(
-    idRefeicaoEditando,
-    {
-      tipo_refeicao: tipoRefeicao,
-      descricao,
-      calorias: Number(calorias),
-      data_hora: dataHora
-    }
-   );
+        const refeicaoAtualizada = await refeicoesService.atualizar(
+          idRefeicaoEditando,
+          {
+            tipo_refeicao: tipoRefeicao,
+            descricao,
+            calorias: Number(calorias),
+            data_hora: dataHora
+          }
+        );
 
-       setRefeicoes(prev =>
-        prev.map(item =>
-        item.id === idRefeicaoEditando
-        ? refeicaoAtualizada
-        : item
-       )
-      );
+        setRefeicoes(prev =>
+          prev.map(item =>
+            item.id === idRefeicaoEditando
+              ? refeicaoAtualizada
+              : item
+          )
+        );
         setIdRefeicaoEditando(null);
         alert('Registro de refeição atualizado com sucesso!');
       } else {
@@ -174,7 +174,7 @@ export default function DashboardPage() {
       setDescricao('');
       setCalorias('');
       setDataHora('');
-    } catch (err : any) {
+    } catch (err: any) {
       console.error(err);
       setErro(err.message || 'Erro ao salvar refeição');
     } finally {
@@ -187,12 +187,12 @@ export default function DashboardPage() {
     setTipoRefeicao(ref.tipo_refeicao);
     setDescricao(ref.descricao);
     setCalorias(String(ref.calorias));
-    
+
     // Converte formatos de data para exibição correta no input datetime-local
-    const dataFormatada = ref.data_hora.includes('Z') 
-      ? ref.data_hora.substring(0, 16) 
+    const dataFormatada = ref.data_hora.includes('Z')
+      ? ref.data_hora.substring(0, 16)
       : ref.data_hora;
-      
+
     setDataHora(dataFormatada);
     setAbaAtiva("refeicoes_crud");
   }
@@ -225,7 +225,7 @@ export default function DashboardPage() {
     };
 
     setJejumAtivo(novoJejum);
-    
+
     // Sincroniza salvando o estado ativo junto com o histórico no localStorage
     const atuais = [novoJejum, ...historicoJejum];
     localStorage.setItem(`jejuns_${userId}`, JSON.stringify(atuais));
@@ -233,7 +233,7 @@ export default function DashboardPage() {
 
   function handleEncerrarJejum() {
     if (!userId || !jejumAtivo) return;
-    
+
     const horaFim = new Date().toISOString();
     const msDiferenca = new Date(horaFim).getTime() - new Date(jejumAtivo.inicio).getTime();
     const horasCalculadas = Math.max(parseFloat((msDiferenca / (1000 * 60 * 60)).toFixed(2)), 0.1);
@@ -260,15 +260,15 @@ export default function DashboardPage() {
     .reduce((acc, curr) => acc + curr.calorias, 0);
 
   const percentualMeta = metaCalorica > 0 ? Math.min(Math.round((totalCaloriasHoje / metaCalorica) * 100), 100) : 0;
-  
+
   // Agrupa dias únicos para cálculo real da média calórica diária
   const diasUnicos = Array.from(new Set(refeicoes.map(r => r.data_hora.split('T')[0])));
-  const mediaDiariaCalorias = diasUnicos.length > 0 
-    ? Math.round(refeicoes.reduce((acc, curr) => acc + curr.calorias, 0) / diasUnicos.length) 
+  const mediaDiariaCalorias = diasUnicos.length > 0
+    ? Math.round(refeicoes.reduce((acc, curr) => acc + curr.calorias, 0) / diasUnicos.length)
     : 0;
 
   const totalJejuConcluidosNaSemana = historicoJejum.length;
-  const tempoMedioJejum = totalJejuConcluidosNaSemana > 0 
+  const tempoMedioJejum = totalJejuConcluidosNaSemana > 0
     ? parseFloat((historicoJejum.reduce((acc, curr) => acc + (curr.duracao_horas || 0), 0) / totalJejuConcluidosNaSemana).toFixed(1))
     : 0;
 
@@ -284,45 +284,70 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#fafaf7] text-[#6b6053] flex">
-      
+
       {/* Sidebar - Tom cinza azulado claro com borda suave */}
-      <aside className="w-64 bg-[#f4f7f8] border-r border-[#cbe3ec] flex flex-col justify-between fixed h-full z-50">
-        <div className="p-6">
+      <aside className="
+w-full
+md:w-64
+bg-[#f4f7f8]
+border-b
+md:border-b-0
+md:border-r
+border-[#cbe3ec]
+flex
+flex-col
+justify-between
+relative
+md:fixed
+md:h-full
+z-50
+">        <div className="p-6">
           <div className="flex items-center gap-2.5 mb-8 border-b border-[#cbe3ec] pb-5">
             <span className="text-2xl filter drop-shadow-sm">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
               </svg>
             </span>
             <span className="font-bold text-lg text-[#3a6d7f] tracking-tight">Pausa<span className="text-[#5ba1b8]">Saúde</span></span>
           </div>
 
           <span className="text-[10px] font-bold text-[#8ba8b3] uppercase tracking-widest block mb-3 pl-2">Módulos Privados</span>
-          <nav className="space-y-1" aria-label="Menu Lateral">
+          <nav
+            className="
+  flex
+  md:flex-col
+  gap-2
+  overflow-x-auto
+  md:overflow-visible
+  pb-2
+  md:pb-0
+  "
+            aria-label="Menu Lateral"
+          >
             <button
               onClick={() => { setAbaAtiva("dashboard"); setIdRefeicaoEditando(null); }}
-              className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${abaAtiva === "dashboard" ? "bg-[#e2f1f6] text-[#2d5664] border border-[#bae6fd]" : "text-[#5a6e75] hover:bg-[#eaeef0]"}`}
+              className={`min-w-[220px] md:w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${abaAtiva === "dashboard" ? "bg-[#e2f1f6] text-[#2d5664] border border-[#bae6fd]" : "text-[#5a6e75] hover:bg-[#eaeef0]"}`}
             >
               📊 Meu Painel Geral
             </button>
 
             <button
               onClick={() => setAbaAtiva("refeicoes_crud")}
-              className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${abaAtiva === "refeicoes_crud" ? "bg-[#e2f1f6] text-[#2d5664] border border-[#bae6fd]" : "text-[#5a6e75] hover:bg-[#eaeef0]"}`}
+              className={`min-w-[220px] md:w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${abaAtiva === "refeicoes_crud" ? "bg-[#e2f1f6] text-[#2d5664] border border-[#bae6fd]" : "text-[#5a6e75] hover:bg-[#eaeef0]"}`}
             >
               🍽️ Minhas Refeições
             </button>
 
             <button
               onClick={() => setAbaAtiva("jejum_gestao")}
-              className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${abaAtiva === "jejum_gestao" ? "bg-[#e2f1f6] text-[#2d5664] border border-[#bae6fd]" : "text-[#5a6e75] hover:bg-[#eaeef0]"}`}
+              className={`min-w-[220px] md:w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${abaAtiva === "jejum_gestao" ? "bg-[#e2f1f6] text-[#2d5664] border border-[#bae6fd]" : "text-[#5a6e75] hover:bg-[#eaeef0]"}`}
             >
               ⏱️ Iniciar/Parar Jejum
             </button>
 
             <button
               onClick={() => setAbaAtiva("historicos")}
-              className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${abaAtiva === "historicos" ? "bg-[#e2f1f6] text-[#2d5664] border border-[#bae6fd]" : "text-[#5a6e75] hover:bg-[#eaeef0]"}`}
+              className={`min-w-[220px] md:w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${abaAtiva === "historicos" ? "bg-[#e2f1f6] text-[#2d5664] border border-[#bae6fd]" : "text-[#5a6e75] hover:bg-[#eaeef0]"}`}
             >
               📜 Histórico de Jejuns
             </button>
@@ -333,18 +358,18 @@ export default function DashboardPage() {
         </div>
       </aside>
 
-      <div className="flex-1 pl-64 flex flex-col justify-between min-h-screen">
+      <div className="flex-1 md:pl-64 flex flex-col justify-between min-h-screen">
         <div className="relative">
           <Navbar />
 
-          <header className="relative w-full bg-gradient-to-r from-[#e2f1f6] to-[#f4f8f9] border-b border-[#cbe3ec] h-40 pt-16 flex items-center shadow-sm">
+          <header className="relative min-w-[220px] md:w-full bg-gradient-to-r from-[#e2f1f6] to-[#f4f8f9] border-b border-[#cbe3ec] h-40 pt-16 flex items-center shadow-sm">
             <div className="absolute inset-y-0 left-0 w-1/4 bg-[#dbedf3] flex items-center justify-center pt-12">
               <span className="text-4xl filter drop-shadow-sm">📅</span>
             </div>
             <div className="absolute inset-y-0 left-[25%] w-16 text-[#dbedf3] fill-current hidden sm:block pt-12">
-              <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full"><path d="M0,0 C50,0 50,100 100,100 L0,100 Z" /></svg>
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full min-w-[220px] md:w-full"><path d="M0,0 C50,0 50,100 100,100 L0,100 Z" /></svg>
             </div>
-            <div className="w-full pl-6 sm:pl-36 md:pl-48 pr-8 z-10 flex flex-col justify-center">
+            <div className="min-w-[220px] md:w-full pl-6 sm:pl-36 md:pl-48 pr-8 z-10 flex flex-col justify-center">
               <h1 className="text-xl font-bold text-[#3a6d7f] tracking-tight">Ambiente de Controle Integrado</h1>
               <p className="text-xs text-[#6b8b96] mt-1 max-w-xl leading-relaxed">Gestão em conformidade estrita com as especificações técnicas requeridas da ementa acadêmica.</p>
             </div>
@@ -359,7 +384,7 @@ export default function DashboardPage() {
               <>
                 {abaAtiva === "dashboard" && (
                   <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                       <div className="bg-white p-4 rounded-xl border border-[#edf0ec] shadow-sm">
                         <span className="text-[10px] uppercase font-bold text-gray-400">Minha Média Calórica Histórica</span>
                         <p className="text-lg font-bold text-[#5a5045] mt-0.5">{mediaDiariaCalorias} kcal / dia</p>
@@ -414,7 +439,10 @@ export default function DashboardPage() {
                           <button onClick={() => { setIdRefeicaoEditando(null); setDescricao(''); setCalorias(''); setDataHora(''); }} className="text-xs text-gray-400 hover:underline">Cancelar Edição</button>
                         )}
                       </div>
-                      <form onSubmit={handleSalvarRefeicao} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <form
+                        onSubmit={handleSalvarRefeicao}
+                        className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+                      >
                         <div>
                           <label className="block text-[11px] font-medium text-[#968a7c] mb-1">Tipo de Refeição</label>
                           <select value={tipoRefeicao} onChange={e => setTipoRefeicao(e.target.value as TipoRefeicao)} className="w-full text-xs bg-[#fafaf9] border border-[#e2e0d5] rounded-xl px-3 py-2">
@@ -427,15 +455,15 @@ export default function DashboardPage() {
                         </div>
                         <div>
                           <label className="block text-[11px] font-medium text-[#968a7c] mb-1">Data / Horário do Alimento</label>
-                          <input type="datetime-local" value={dataHora} onChange={e => setDataHora(e.target.value)} className="w-full text-xs bg-[#fafaf9] border border-[#e2e0d5] rounded-xl px-3 py-2"/>
+                          <input type="datetime-local" value={dataHora} onChange={e => setDataHora(e.target.value)} className="w-full text-xs bg-[#fafaf9] border border-[#e2e0d5] rounded-xl px-3 py-2" />
                         </div>
                         <div className="md:col-span-2">
                           <label className="block text-[11px] font-medium text-[#968a7c] mb-1">Descrição do que consumiu</label>
-                          <input type="text" placeholder="Ex: Salada de frutas com aveia" value={descricao} onChange={e => setDescricao(e.target.value)} className="w-full text-xs bg-[#fafaf9] border border-[#e2e0d5] rounded-xl px-3 py-2"/>
+                          <input type="text" placeholder="Ex: Salada de frutas com aveia" value={descricao} onChange={e => setDescricao(e.target.value)} className="w-full text-xs bg-[#fafaf9] border border-[#e2e0d5] rounded-xl px-3 py-2" />
                         </div>
                         <div>
                           <label className="block text-[11px] font-medium text-[#968a7c] mb-1">Calorias (kcal)</label>
-                          <input type="number" placeholder="Ex: 310" value={calorias} onChange={e => setCalorias(e.target.value)} className="w-full text-xs bg-[#fafaf9] border border-[#e2e0d5] rounded-xl px-3 py-2"/>
+                          <input type="number" placeholder="Ex: 310" value={calorias} onChange={e => setCalorias(e.target.value)} className="w-full text-xs bg-[#fafaf9] border border-[#e2e0d5] rounded-xl px-3 py-2" />
                         </div>
                         <div className="flex items-end gap-2">
                           <button type="submit" disabled={enviando} className="w-full text-xs bg-[#e2f1f6] text-[#427b8f] font-bold rounded-xl py-2 shadow-sm disabled:opacity-50">
@@ -555,7 +583,7 @@ export default function DashboardPage() {
               </>
             )}
           </main>
-          
+
         </div>
 
         <footer className="w-full bg-white border-t py-4 text-center mt-12 shadow-inner">
