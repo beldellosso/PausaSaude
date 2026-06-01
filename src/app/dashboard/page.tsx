@@ -364,7 +364,7 @@ z-50
 
           <header className="relative min-w-[220px] md:w-full bg-gradient-to-r from-[#e2f1f6] to-[#f4f8f9] border-b border-[#cbe3ec] h-40 pt-16 flex items-center shadow-sm">
             <div className="absolute inset-y-0 left-0 w-1/4 bg-[#dbedf3] flex items-center justify-center pt-12">
-              <span className="text-4xl filter drop-shadow-sm">📅</span>
+              <span className="text-4xl filter drop-shadow-sm"></span>
             </div>
             <div className="absolute inset-y-0 left-[25%] w-16 text-[#dbedf3] fill-current hidden sm:block pt-12">
               <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full min-w-[220px] md:w-full"><path d="M0,0 C50,0 50,100 100,100 L0,100 Z" /></svg>
